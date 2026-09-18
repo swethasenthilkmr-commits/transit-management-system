@@ -146,4 +146,45 @@ public class PassengerController {
 
         return "Passenger deleted successfully";
     }
+
+    // GET PASSENGER CONTACTS
+    @GetMapping("/{id}/contacts")
+    public List<Map<String, Object>> getPassengerContacts(@PathVariable String id) {
+        String sql = """
+                SELECT PHONE_NO
+                FROM PASSENGER_CONTACT
+                WHERE PASSENGER_ID = ?
+                ORDER BY PHONE_NO
+                """;
+        return jdbcTemplate.queryForList(sql, id);
+    }
+
+    // UPDATE PASSENGER CONTACTS
+    @PostMapping("/{id}/contacts")
+    public String updatePassengerContacts(
+            @PathVariable String id,
+            @RequestBody Map<String, Object> body) {
+
+        String deleteSql = """
+                DELETE FROM PASSENGER_CONTACT
+                WHERE PASSENGER_ID = ?
+                """;
+        jdbcTemplate.update(deleteSql, id);
+
+        String insertSql = """
+                INSERT INTO PASSENGER_CONTACT (PASSENGER_ID, PHONE_NO)
+                VALUES (?, ?)
+                """;
+
+        @SuppressWarnings("unchecked")
+        List<String> phones = (List<String>) body.get("phones");
+        
+        if (phones != null) {
+            for (String phone : phones) {
+                jdbcTemplate.update(insertSql, id, phone);
+            }
+        }
+
+        return "Contacts updated successfully";
+    }
 }

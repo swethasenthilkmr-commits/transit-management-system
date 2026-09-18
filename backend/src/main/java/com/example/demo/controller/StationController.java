@@ -19,15 +19,25 @@ public class StationController {
 
     // GET - get all stations
     @GetMapping
-    public List<Map<String, Object>> getAllStations() {
+    public List<Map<String, Object>> getAllStations(
+            @RequestParam(value = "routeId", required = false) String routeId) {
 
-        String sql = """
-                SELECT STATION_ID, STATION_NAME, CITY, AREA, LANDMARK, ROUTE_ID
-                FROM STATION
-                ORDER BY STATION_ID
-                """;
-
-        return jdbcTemplate.queryForList(sql);
+        if (routeId != null) {
+            String sql = """
+                    SELECT STATION_ID, STATION_NAME, CITY, AREA, LANDMARK, ROUTE_ID
+                    FROM STATION
+                    WHERE ROUTE_ID = ?
+                    ORDER BY STATION_ID
+                    """;
+            return jdbcTemplate.queryForList(sql, routeId);
+        } else {
+            String sql = """
+                    SELECT STATION_ID, STATION_NAME, CITY, AREA, LANDMARK, ROUTE_ID
+                    FROM STATION
+                    ORDER BY STATION_ID
+                    """;
+            return jdbcTemplate.queryForList(sql);
+        }
     }
 
     // POST - add a new station
