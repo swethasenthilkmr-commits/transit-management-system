@@ -28,6 +28,26 @@ import {
   INITIAL_PAYMENTS,
   INITIAL_TICKETS,
 } from '../data/mockData';
+import {
+  getStations,
+  addStationApi,
+  updateStationApi,
+  deleteStationApi,
+} from '../api/stationApi';
+
+import {
+  getPassengers,
+  addPassengerApi,
+  updatePassengerApi,
+  deletePassengerApi,
+} from '../api/passengerApi';
+
+import {
+  getRoutes,
+  addRouteApi,
+  updateRouteApi,
+  deleteRouteApi,
+} from '../api/routeApi';
 
 interface TransitContextType {
   // Navigation & Global Search
@@ -125,9 +145,9 @@ export const TransitProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-  const [passengers, setPassengers] = useState<Passenger[]>(() => loadInitial('passengers', INITIAL_PASSENGERS));
-  const [routes, setRoutes] = useState<Route[]>(() => loadInitial('routes', INITIAL_ROUTES));
-  const [stations, setStations] = useState<Station[]>(() => loadInitial('stations', INITIAL_STATIONS));
+  const [passengers, setPassengers] = useState<Passenger[]>([]);
+  const [routes, setRoutes] = useState<Route[]>([]);
+  const [stations, setStations] = useState<Station[]>([]);
   const [routeStations, setRouteStations] = useState<RouteStation[]>(() => loadInitial('routeStations', INITIAL_ROUTE_STATIONS));
   const [vehicleTypes, setVehicleTypes] = useState<VehicleType[]>(() => loadInitial('vehicleTypes', INITIAL_VEHICLE_TYPES));
   const [drivers, setDrivers] = useState<Driver[]>(() => loadInitial('drivers', INITIAL_DRIVERS));
@@ -137,13 +157,11 @@ export const TransitProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [bookings, setBookings] = useState<Booking[]>(() => loadInitial('bookings', INITIAL_BOOKINGS));
   const [payments, setPayments] = useState<Payment[]>(() => loadInitial('payments', INITIAL_PAYMENTS));
   const [tickets, setTickets] = useState<Ticket[]>(() => loadInitial('tickets', INITIAL_TICKETS));
-
+  
   // Sync state changes with localStorage
   useEffect(() => {
     try {
       localStorage.setItem(`${STORAGE_KEY}_passengers`, JSON.stringify(passengers));
-      localStorage.setItem(`${STORAGE_KEY}_routes`, JSON.stringify(routes));
-      localStorage.setItem(`${STORAGE_KEY}_stations`, JSON.stringify(stations));
       localStorage.setItem(`${STORAGE_KEY}_routeStations`, JSON.stringify(routeStations));
       localStorage.setItem(`${STORAGE_KEY}_vehicleTypes`, JSON.stringify(vehicleTypes));
       localStorage.setItem(`${STORAGE_KEY}_drivers`, JSON.stringify(drivers));
@@ -156,41 +174,160 @@ export const TransitProvider: React.FC<{ children: React.ReactNode }> = ({ child
     } catch {
       // ignore storage quota errors
     }
-  }, [passengers, routes, stations, routeStations, vehicleTypes, drivers, vehicles, trips, tripStops, bookings, payments, tickets]);
+  }, [ routeStations, vehicleTypes, drivers, vehicles, trips, tripStops, bookings, payments, tickets]);
+  useEffect(() => {
+  getStations()
+    .then((data) => {
+      setStations(data);
+    })
+    .catch((error) => {
+      console.error('Failed to load stations:', error);
+    });
+}, []);
+  useEffect(() => {
+  getPassengers()
+    .then((data) => {
+      setPassengers(data);
+    })
+    .catch((error) => {
+      console.error('Failed to load passengers:', error);
+    });
+}, []);
+  useEffect(() => {
+  getRoutes()
+    .then((data) => {
+      setRoutes(data);
+    })
+    .catch((error) => {
+      console.error('Failed to load routes:', error);
+    });
+}, []);
+  const addPassenger = async (passenger: Passenger) => {
+    try {
+      await addPassengerApi(passenger);
 
-  // Passengers
-  const addPassenger = (passenger: Passenger) => {
-    setPassengers((prev) => [passenger, ...prev]);
-  };
-  const updatePassenger = (passenger: Passenger) => {
-    setPassengers((prev) => prev.map((p) => (p.passenger_id === passenger.passenger_id ? passenger : p)));
-  };
-  const deletePassenger = (id: string) => {
-    setPassengers((prev) => prev.filter((p) => p.passenger_id !== id));
+      setPassengers((prev) => [passenger, ...prev]);
+    } catch (error) {
+      console.error('Failed to add passenger:', error);
+      alert('Failed to add passenger');
+    }
   };
 
+  const updatePassenger = async (passenger: Passenger) => {
+    try {
+      await updatePassengerApi(passenger);
+
+      setPassengers((prev) =>
+        prev.map((p) =>
+          p.passenger_id === passenger.passenger_id
+            ? passenger
+            : p
+        )
+      );
+    } catch (error) {
+      console.error('Failed to update passenger:', error);
+      alert('Failed to update passenger');
+    }
+  };
+
+  const deletePassenger = async (id: string) => {
+    try {
+      await deletePassengerApi(id);
+
+      setPassengers((prev) =>
+        prev.filter((p) => p.passenger_id !== id)
+      );
+    } catch (error) {
+      console.error('Failed to delete passenger:', error);
+      alert('Failed to delete passenger');
+    }
+  };
+
+    // Routes
   // Routes
-  const addRoute = (route: Route) => {
+const addRoute = async (route: Route) => {
+  try {
+    await addRouteApi(route);
+
     setRoutes((prev) => [route, ...prev]);
-  };
-  const updateRoute = (route: Route) => {
-    setRoutes((prev) => prev.map((r) => (r.route_id === route.route_id ? route : r)));
-  };
-  const deleteRoute = (id: string) => {
-    setRoutes((prev) => prev.filter((r) => r.route_id !== id));
-    setRouteStations((prev) => prev.filter((rs) => rs.route_id !== id));
-  };
+  } catch (error) {
+    console.error('Failed to add route:', error);
+    alert('Failed to add route');
+  }
+};
+
+const updateRoute = async (route: Route) => {
+  try {
+    await updateRouteApi(route);
+
+    setRoutes((prev) =>
+      prev.map((r) =>
+        r.route_id === route.route_id ? route : r
+      )
+    );
+  } catch (error) {
+    console.error('Failed to update route:', error);
+    alert('Failed to update route');
+  }
+};
+
+const deleteRoute = async (id: string) => {
+  try {
+    await deleteRouteApi(id);
+
+    setRoutes((prev) =>
+      prev.filter((r) => r.route_id !== id)
+    );
+
+    setRouteStations((prev) =>
+      prev.filter((rs) => rs.route_id !== id)
+    );
+  } catch (error) {
+    console.error('Failed to delete route:', error);
+    alert('Failed to delete route');
+  }
+};
 
   // Stations
-  const addStation = (station: Station) => {
-    setStations((prev) => [station, ...prev]);
+  const addStation = async (station: Station) => {
+    try {
+      await addStationApi(station);
+      setStations((prev) => [station, ...prev]);
+    } catch (error) {
+      console.error('Failed to add station:', error);
+      alert('Failed to add station');
+    }
   };
-  const updateStation = (station: Station) => {
-    setStations((prev) => prev.map((s) => (s.station_id === station.station_id ? station : s)));
+
+  const updateStation = async (station: Station) => {
+    try {
+      await updateStationApi(station);
+      setStations((prev) =>
+        prev.map((s) =>
+          s.station_id === station.station_id ? station : s
+        )
+      );
+    } catch (error) {
+      console.error('Failed to update station:', error);
+      alert('Failed to update station');
+    }
   };
-  const deleteStation = (id: string) => {
-    setStations((prev) => prev.filter((s) => s.station_id !== id));
-    setRouteStations((prev) => prev.filter((rs) => rs.station_id !== id));
+
+  const deleteStation = async (id: string) => {
+    try {
+      await deleteStationApi(id);
+
+      setStations((prev) =>
+        prev.filter((s) => s.station_id !== id)
+      );
+
+      setRouteStations((prev) =>
+        prev.filter((rs) => rs.station_id !== id)
+      );
+    } catch (error) {
+      console.error('Failed to delete station:', error);
+      alert('Failed to delete station');
+    }
   };
 
   // Route Stations M:N Mapping
