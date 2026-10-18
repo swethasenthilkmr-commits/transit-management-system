@@ -39,8 +39,10 @@ export const BookingModal: React.FC<BookingModalProps> = ({
       setSeatNumber(initialBooking.seat_number);
       setBookingDate(initialBooking.booking_date);
       setStatus(initialBooking.status);
-    } else {
+    } 
+    else {
       const numericIds = existingIds
+        .filter((id): id is string => typeof id === 'string')
         .map((id) => parseInt(id.replace(/\D/g, ''), 10))
         .filter((n) => !isNaN(n));
       const nextNum = numericIds.length > 0 ? Math.max(...numericIds) + 1 : 1;

@@ -49,7 +49,7 @@ export function DataTable<T extends Record<string, any>>({
           const val = item[field];
           if (val === null || val === undefined) return false;
           if (Array.isArray(val)) {
-            return val.some((v) => String(v).toLowerCase().includes(effectiveSearch));
+            return val.some((v: unknown) => String(v).toLowerCase().includes(effectiveSearch));
           }
           return String(val).toLowerCase().includes(effectiveSearch);
         });
@@ -59,7 +59,7 @@ export function DataTable<T extends Record<string, any>>({
       return Object.values(item).some((val) => {
         if (val === null || val === undefined) return false;
         if (Array.isArray(val)) {
-          return val.some((v) => String(v).toLowerCase().includes(effectiveSearch));
+          return val.some((v: unknown) => String(v).toLowerCase().includes(effectiveSearch));
         }
         return String(val).toLowerCase().includes(effectiveSearch);
       });

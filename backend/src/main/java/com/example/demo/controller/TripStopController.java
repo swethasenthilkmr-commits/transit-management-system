@@ -41,7 +41,11 @@ public class TripStopController {
                         tripId,
                         stop.get("stop_no"),
                         stop.get("station_id"),
-                        stop.get("station_name"),
+                        jdbcTemplate.queryForObject(
+                            "SELECT STATION_NAME FROM STATION WHERE STATION_ID = ?",
+                            String.class,
+                            stop.get("station_id")
+                        ),
                         stop.get("arrival_time"),
                         stop.get("departure_time")
                 );

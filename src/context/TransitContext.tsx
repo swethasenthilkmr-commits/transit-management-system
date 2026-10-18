@@ -1,9 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+
 import {
   Passenger,
-  Route,
   Station,
   RouteStation,
+  Route,
   VehicleType,
   Driver,
   Vehicle,
@@ -14,6 +15,7 @@ import {
   Ticket,
   ActiveTab,
 } from '../types/transit';
+
 import {
   INITIAL_PASSENGERS,
   INITIAL_ROUTES,
@@ -28,6 +30,7 @@ import {
   INITIAL_PAYMENTS,
   INITIAL_TICKETS,
 } from '../data/mockData';
+
 import {
   getStations,
   addStationApi,
@@ -48,6 +51,56 @@ import {
   updateRouteApi,
   deleteRouteApi,
 } from '../api/routeApi';
+
+import {
+  getDrivers,
+  addDriverApi,
+  updateDriverApi,
+  deleteDriverApi,
+} from '../api/driverApi';
+
+import {
+  getVehicles,
+  addVehicleApi,
+  updateVehicleApi,
+  deleteVehicleApi,
+} from '../api/vehicleApi';
+
+import {
+  getVehicleTypes,
+  addVehicleTypeApi,
+  updateVehicleTypeApi,
+  deleteVehicleTypeApi,
+} from '../api/vehicleTypeApi';
+
+import {
+  getTrips,
+  addTripApi,
+  updateTripApi,
+  deleteTripApi,
+} from '../api/tripApi';
+
+import {
+  getBookings,
+  addBookingApi,
+  updateBookingApi,
+  deleteBookingApi,
+} from '../api/bookingApi';
+
+import {
+  getPayments,
+  addPaymentApi,
+  updatePaymentApi,
+  deletePaymentApi,
+} from '../api/paymentApi';
+
+import {
+  getTickets,
+  addTicketApi,
+  updateTicketApi,
+  deleteTicketApi,
+} from '../api/ticketApi';
+
 
 interface TransitContextType {
   // Navigation & Global Search
@@ -176,31 +229,45 @@ export const TransitProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [ routeStations, vehicleTypes, drivers, vehicles, trips, tripStops, bookings, payments, tickets]);
   useEffect(() => {
-  getStations()
-    .then((data) => {
-      setStations(data);
-    })
-    .catch((error) => {
-      console.error('Failed to load stations:', error);
-    });
-}, []);
-  useEffect(() => {
   getPassengers()
-    .then((data) => {
-      setPassengers(data);
-    })
-    .catch((error) => {
-      console.error('Failed to load passengers:', error);
-    });
-}, []);
-  useEffect(() => {
+    .then(setPassengers)
+    .catch((error) => console.error('Failed to load passengers:', error));
+
   getRoutes()
-    .then((data) => {
-      setRoutes(data);
-    })
-    .catch((error) => {
-      console.error('Failed to load routes:', error);
-    });
+    .then(setRoutes)
+    .catch((error) => console.error('Failed to load routes:', error));
+
+  getStations()
+    .then(setStations)
+    .catch((error) => console.error('Failed to load stations:', error));
+
+  getDrivers()
+    .then(setDrivers)
+    .catch((error) => console.error('Failed to load drivers:', error));
+
+  getVehicles()
+    .then(setVehicles)
+    .catch((error) => console.error('Failed to load vehicles:', error));
+
+  getVehicleTypes()
+    .then(setVehicleTypes)
+    .catch((error) => console.error('Failed to load vehicle types:', error));
+
+  getTrips()
+    .then(setTrips)
+    .catch((error) => console.error('Failed to load trips:', error));
+
+  getBookings()
+    .then(setBookings)
+    .catch((error) => console.error('Failed to load bookings:', error));
+
+  getPayments()
+    .then(setPayments)
+    .catch((error) => console.error('Failed to load payments:', error));
+
+  getTickets()
+    .then(setTickets)
+    .catch((error) => console.error('Failed to load tickets:', error));
 }, []);
   const addPassenger = async (passenger: Passenger) => {
     try {
@@ -362,101 +429,302 @@ const deleteRoute = async (id: string) => {
   };
 
   // Fleet
-  const addVehicleType = (type: VehicleType) => {
+  // Fleet
+
+const addVehicleType = async (type: VehicleType) => {
+  try {
+    await addVehicleTypeApi(type);
     setVehicleTypes((prev) => [type, ...prev]);
-  };
-  const updateVehicleType = (type: VehicleType) => {
-    setVehicleTypes((prev) => prev.map((vt) => (vt.type_id === type.type_id ? type : vt)));
-  };
-  const deleteVehicleType = (id: string) => {
-    setVehicleTypes((prev) => prev.filter((vt) => vt.type_id !== id));
-  };
+  } catch (error) {
+    console.error('Failed to add vehicle type:', error);
+    alert('Failed to add vehicle type');
+  }
+};
 
-  const addDriver = (driver: Driver) => {
-    setDrivers((prev) => [driver, ...prev]);
-  };
-  const updateDriver = (driver: Driver) => {
-    setDrivers((prev) => prev.map((d) => (d.driver_id === driver.driver_id ? driver : d)));
-  };
-  const deleteDriver = (id: string) => {
-    setDrivers((prev) => prev.filter((d) => d.driver_id !== id));
-    // Clear assigned driver in vehicles
-    setVehicles((prev) =>
-      prev.map((v) => (v.driver_id === id ? { ...v, driver_id: null } : v))
+const updateVehicleType = async (type: VehicleType) => {
+  try {
+    await updateVehicleTypeApi(type);
+    setVehicleTypes((prev) =>
+      prev.map((vt) => vt.type_id === type.type_id ? type : vt)
     );
-  };
+  } catch (error) {
+    console.error('Failed to update vehicle type:', error);
+    alert('Failed to update vehicle type');
+  }
+};
 
-  const addVehicle = (vehicle: Vehicle) => {
+const deleteVehicleType = async (id: string) => {
+  try {
+    await deleteVehicleTypeApi(id);
+    setVehicleTypes((prev) => prev.filter((vt) => vt.type_id !== id));
+  } catch (error) {
+    console.error('Failed to delete vehicle type:', error);
+    alert('Failed to delete vehicle type');
+  }
+};
+
+
+const addDriver = async (driver: Driver) => {
+  try {
+    await addDriverApi(driver);
+    setDrivers((prev) => [driver, ...prev]);
+  } catch (error) {
+    console.error('Failed to add driver:', error);
+    alert('Failed to add driver');
+  }
+};
+
+const updateDriver = async (driver: Driver) => {
+  try {
+    await updateDriverApi(driver);
+    setDrivers((prev) =>
+      prev.map((d) => d.driver_id === driver.driver_id ? driver : d)
+    );
+  } catch (error) {
+    console.error('Failed to update driver:', error);
+    alert('Failed to update driver');
+  }
+};
+
+const deleteDriver = async (id: string) => {
+  try {
+    await deleteDriverApi(id);
+    setDrivers((prev) => prev.filter((d) => d.driver_id !== id));
+  } catch (error) {
+    console.error('Failed to delete driver:', error);
+    alert('Failed to delete driver');
+  }
+};
+
+
+const addVehicle = async (vehicle: Vehicle) => {
+  try {
+    await addVehicleApi(vehicle);
     setVehicles((prev) => [vehicle, ...prev]);
-  };
-  const updateVehicle = (vehicle: Vehicle) => {
-    setVehicles((prev) => prev.map((v) => (v.vehicle_id === vehicle.vehicle_id ? vehicle : v)));
-  };
-  const deleteVehicle = (id: string) => {
-    setVehicles((prev) => prev.filter((v) => v.vehicle_id !== id));
-  };
+  } catch (error) {
+    console.error('Failed to add vehicle:', error);
+    alert('Failed to add vehicle');
+  }
+};
 
-  // Trips & Trip Stops
-  const addTrip = (trip: Trip) => {
+const updateVehicle = async (vehicle: Vehicle) => {
+  try {
+    await updateVehicleApi(vehicle);
+    setVehicles((prev) =>
+      prev.map((v) =>
+        v.vehicle_id === vehicle.vehicle_id ? vehicle : v
+      )
+    );
+  } catch (error) {
+    console.error('Failed to update vehicle:', error);
+    alert('Failed to update vehicle');
+  }
+};
+
+const deleteVehicle = async (id: string) => {
+  try {
+    await deleteVehicleApi(id);
+    setVehicles((prev) =>
+      prev.filter((v) => v.vehicle_id !== id)
+    );
+  } catch (error) {
+    console.error('Failed to delete vehicle:', error);
+    alert('Failed to delete vehicle');
+  }
+};
+
+
+// Trips
+
+const addTrip = async (trip: Trip) => {
+  try {
+    await addTripApi(trip);
     setTrips((prev) => [trip, ...prev]);
-  };
-  const updateTrip = (trip: Trip) => {
-    setTrips((prev) => prev.map((t) => (t.trip_id === trip.trip_id ? trip : t)));
-  };
-  const deleteTrip = (id: string) => {
-    setTrips((prev) => prev.filter((t) => t.trip_id !== id));
-    setTripStops((prev) => prev.filter((ts) => ts.trip_id !== id));
-  };
+  } catch (error) {
+    console.error('Failed to add trip:', error);
+    alert('Failed to add trip');
+  }
+};
 
-  const getStopsForTrip = (tripId: string) => {
-    return tripStops
-      .filter((ts) => ts.trip_id === tripId)
-      .sort((a, b) => a.stop_order - b.stop_order)
-      .map((ts) => ({
-        ...ts,
-        station: stations.find((s) => s.station_id === ts.station_id),
-      }));
-  };
+const updateTrip = async (trip: Trip) => {
+  try {
+    await updateTripApi(trip);
+    setTrips((prev) =>
+      prev.map((t) =>
+        t.trip_id === trip.trip_id ? trip : t
+      )
+    );
+  } catch (error) {
+    console.error('Failed to update trip:', error);
+    alert('Failed to update trip');
+  }
+};
 
-  const saveTripStops = (tripId: string, stops: TripStop[]) => {
-    setTripStops((prev) => [
-      ...prev.filter((ts) => ts.trip_id !== tripId),
-      ...stops,
-    ]);
-  };
+const deleteTrip = async (id: string) => {
+  try {
+    await deleteTripApi(id);
+    setTrips((prev) =>
+      prev.filter((t) => t.trip_id !== id)
+    );
+    setTripStops((prev) =>
+      prev.filter((ts) => ts.trip_id !== id)
+    );
+  } catch (error) {
+    console.error('Failed to delete trip:', error);
+    alert('Failed to delete trip');
+  }
+};
 
-  // Bookings
-  const addBooking = (booking: Booking) => {
+const getStopsForTrip = (tripId: string) => {
+  return tripStops
+    .filter((ts) => ts.trip_id === tripId)
+    .sort((a, b) => a.stop_order - b.stop_order)
+    .map((ts) => ({
+      ...ts,
+      station: stations.find((s) => s.station_id === ts.station_id),
+    }));
+};
+
+const saveTripStops = (tripId: string, stops: TripStop[]) => {
+  setTripStops((prev) => [
+    ...prev.filter((ts) => ts.trip_id !== tripId),
+    ...stops,
+  ]);
+};
+
+// Bookings
+
+
+const addBooking = async (booking: Booking) => {
+  try {
+    await addBookingApi(booking, passengers, trips);
     setBookings((prev) => [booking, ...prev]);
-  };
-  const updateBooking = (booking: Booking) => {
-    setBookings((prev) => prev.map((b) => (b.booking_id === booking.booking_id ? booking : b)));
-  };
-  const deleteBooking = (id: string) => {
-    setBookings((prev) => prev.filter((b) => b.booking_id !== id));
-  };
+  } catch (error) {
+    console.error("Failed to add booking:", error);
+    alert(
+      error instanceof Error ? error.message : "Failed to add booking"
+    );
+  }
+};
 
-  // Payments
-  const addPayment = (payment: Payment) => {
+const updateBooking = async (booking: Booking) => {
+  try {
+    await updateBookingApi(booking, passengers, trips);
+    setBookings((prev) =>
+      prev.map((b) =>
+        b.passenger_id === booking.passenger_id &&
+        b.trip_id === booking.trip_id
+          ? booking
+          : b
+      )
+    );
+  } catch (error) {
+    console.error("Failed to update booking:", error);
+    alert(
+      error instanceof Error ? error.message : "Failed to update booking"
+    );
+  }
+};
+
+
+const deleteBooking = async (bookingId: string) => {
+  try {
+    const [passengerId, tripId] = bookingId.split("_");
+
+    if (!passengerId || !tripId) {
+      throw new Error("Invalid booking ID. Expected passengerId_tripId.");
+    }
+
+    await deleteBookingApi(passengerId, tripId);
+
+    setBookings((prev) =>
+      prev.filter((b) => b.booking_id !== bookingId)
+    );
+  } catch (error) {
+    console.error("Failed to delete booking:", error);
+    alert("Failed to delete booking");
+  }
+};
+
+
+
+
+// Payments
+
+const addPayment = async (payment: Payment) => {
+  try {
+    await addPaymentApi(payment);
     setPayments((prev) => [payment, ...prev]);
-  };
-  const updatePayment = (payment: Payment) => {
-    setPayments((prev) => prev.map((p) => (p.payment_id === payment.payment_id ? payment : p)));
-  };
-  const deletePayment = (id: string) => {
-    setPayments((prev) => prev.filter((p) => p.payment_id !== id));
-  };
+  } catch (error) {
+    console.error('Failed to add payment:', error);
+    alert('Failed to add payment');
+  }
+};
 
-  // Tickets
-  const addTicket = (ticket: Ticket) => {
+const updatePayment = async (payment: Payment) => {
+  try {
+    await updatePaymentApi(payment);
+    setPayments((prev) =>
+      prev.map((p) =>
+        p.payment_id === payment.payment_id ? payment : p
+      )
+    );
+  } catch (error) {
+    console.error('Failed to update payment:', error);
+    alert('Failed to update payment');
+  }
+};
+
+const deletePayment = async (id: string) => {
+  try {
+    await deletePaymentApi(id);
+    setPayments((prev) =>
+      prev.filter((p) => p.payment_id !== id)
+    );
+  } catch (error) {
+    console.error('Failed to delete payment:', error);
+    alert('Failed to delete payment');
+  }
+};
+
+
+// Tickets
+
+const addTicket = async (ticket: Ticket) => {
+  try {
+    await addTicketApi(ticket);
     setTickets((prev) => [ticket, ...prev]);
-  };
-  const updateTicket = (ticket: Ticket) => {
-    setTickets((prev) => prev.map((t) => (t.ticket_id === ticket.ticket_id ? ticket : t)));
-  };
-  const deleteTicket = (id: string) => {
-    setTickets((prev) => prev.filter((t) => t.ticket_id !== id));
-  };
+  } catch (error) {
+    console.error('Failed to add ticket:', error);
+    alert('Failed to add ticket');
+  }
+};
+
+const updateTicket = async (ticket: Ticket) => {
+  try {
+    await updateTicketApi(ticket);
+    setTickets((prev) =>
+      prev.map((t) =>
+        t.ticket_id === ticket.ticket_id ? ticket : t
+      )
+    );
+  } catch (error) {
+    console.error('Failed to update ticket:', error);
+    alert('Failed to update ticket');
+  }
+};
+
+const deleteTicket = async (id: string) => {
+  try {
+    await deleteTicketApi(id);
+    setTickets((prev) =>
+      prev.filter((t) => t.ticket_id !== id)
+    );
+  } catch (error) {
+    console.error('Failed to delete ticket:', error);
+    alert('Failed to delete ticket');
+  }
+};
 
   // Reset to initial mock seed
   const resetData = () => {

@@ -41,8 +41,10 @@ export const TripModal: React.FC<TripModalProps> = ({
       setRouteId(initialTrip.route_id);
       setVehicleId(initialTrip.vehicle_id || 'none');
       setStatus(initialTrip.status || 'Scheduled');
-    } else {
+    } 
+    else {
       const numericIds = existingIds
+        .filter((id): id is string => typeof id === 'string')
         .map((id) => parseInt(id.replace(/\D/g, ''), 10))
         .filter((n) => !isNaN(n));
       const nextNum = numericIds.length > 0 ? Math.max(...numericIds) + 1 : 1;

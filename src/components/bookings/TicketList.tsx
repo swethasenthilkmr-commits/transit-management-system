@@ -6,7 +6,7 @@ import { TicketModal } from './TicketModal';
 import { TicketCardModal } from './TicketCardModal';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { TravelClassBadge, Badge } from '../common/Badge';
-import { PlusIcon, EditIcon, TrashIcon, TicketIcon, QrCodeIcon } from '../common/Icons';
+import { PlusIcon, EditIcon, TrashIcon, QrCodeIcon } from '../common/Icons';
 
 export const TicketList: React.FC = () => {
   const {
@@ -129,8 +129,10 @@ export const TicketList: React.FC = () => {
         return (
           <div>
             <div className="font-mono font-bold text-emerald-700 text-xs">
-              ${pay.amount.toFixed(2)}{' '}
-              <span className="text-[10px] text-zinc-400 font-normal">via {pay.mode}</span>
+              ${Number(pay.amount ?? 0).toFixed(2)}{' '}
+              <span className="text-[10px] text-zinc-400 font-normal">
+                via {pay.mode ?? 'Unknown'}
+              </span>
             </div>
             <div className="font-mono text-[10px] text-zinc-400">{pay.txn_reference_no}</div>
           </div>

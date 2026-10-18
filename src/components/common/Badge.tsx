@@ -1,6 +1,5 @@
 import React from 'react';
-import { RouteType, FuelType, TravelClass, PaymentMode, PaymentStatus, BookingStatus } from '../../types/transit';
-
+import { RouteType, FuelType, TravelClass, PaymentStatus, BookingStatus } from '../../types/transit';
 interface BadgeProps {
   children: React.ReactNode;
   variant?: 'bus' | 'metro' | 'success' | 'warning' | 'danger' | 'neutral' | 'info';

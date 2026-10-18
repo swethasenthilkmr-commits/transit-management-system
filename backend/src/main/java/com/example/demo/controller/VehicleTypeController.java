@@ -1,3 +1,4 @@
+
 package com.example.demo.controller;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -30,40 +31,55 @@ public class VehicleTypeController {
     @PostMapping
     public String addVehicleType(@RequestBody Map<String, Object> body) {
         String sql = """
-                INSERT INTO VEHICLE_TYPE (VEHICLE_TYPE_ID, TYPE_NAME, CAPACITY, FUEL_TYPE)
+                INSERT INTO VEHICLE_TYPE
+                    (VEHICLE_TYPE_ID, TYPE_NAME, CAPACITY, FUEL_TYPE)
                 VALUES (?, ?, ?, ?)
                 """;
+
         jdbcTemplate.update(
                 sql,
-                body.get("vehicle_type_id"),
-                body.get("type_name"),
-                body.get("capacity"),
-                body.get("fuel_type")
+                body.get("VEHICLE_TYPE_ID"),
+                body.get("TYPE_NAME"),
+                body.get("CAPACITY"),
+                body.get("FUEL_TYPE")
         );
+
         return "Vehicle type added successfully";
     }
 
     @PutMapping("/{id}")
-    public String updateVehicleType(@PathVariable String id, @RequestBody Map<String, Object> body) {
+    public String updateVehicleType(
+            @PathVariable String id,
+            @RequestBody Map<String, Object> body) {
+
         String sql = """
                 UPDATE VEHICLE_TYPE
                 SET TYPE_NAME = ?, CAPACITY = ?, FUEL_TYPE = ?
                 WHERE VEHICLE_TYPE_ID = ?
                 """;
+
         int rows = jdbcTemplate.update(
                 sql,
-                body.get("type_name"),
-                body.get("capacity"),
-                body.get("fuel_type"),
+                body.get("TYPE_NAME"),
+                body.get("CAPACITY"),
+                body.get("FUEL_TYPE"),
                 id
         );
-        return rows == 0 ? "Vehicle type not found" : "Vehicle type updated successfully";
+
+        return rows == 0
+                ? "Vehicle type not found"
+                : "Vehicle type updated successfully";
     }
 
     @DeleteMapping("/{id}")
     public String deleteVehicleType(@PathVariable String id) {
-        String sql = "DELETE FROM VEHICLE_TYPE WHERE VEHICLE_TYPE_ID = ?";
+        String sql =
+                "DELETE FROM VEHICLE_TYPE WHERE VEHICLE_TYPE_ID = ?";
+
         int rows = jdbcTemplate.update(sql, id);
-        return rows == 0 ? "Vehicle type not found" : "Vehicle type deleted successfully";
+
+        return rows == 0
+                ? "Vehicle type not found"
+                : "Vehicle type deleted successfully";
     }
 }

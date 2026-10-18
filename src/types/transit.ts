@@ -127,13 +127,11 @@ export type TravelClass = 'General' | 'AC' | 'Metro Express';
 
 export interface Ticket {
   ticket_id: string;
-  passenger_id: string; // FK to Passenger
-  trip_id: string; // FK to Trip
-  booking_id: string; // FK to Booking
-  issue_date: string; // YYYY-MM-DD
+  passenger_id: string;
+  trip_id: string;
+  issue_date: string;
   ticket_type: TicketType;
   travel_class: TravelClass;
-  payment_id: string; // FK to Payment
 }
 
 // Navigation & View Types

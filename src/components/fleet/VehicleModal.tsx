@@ -35,16 +35,23 @@ export const VehicleModal: React.FC<VehicleModalProps> = ({
 
   useEffect(() => {
     if (initialVehicle) {
-      setVehicleId(initialVehicle.vehicle_id);
-      setRegNo(initialVehicle.registration_no);
-      setMfgDate(initialVehicle.manufacture_date);
-      setColor(initialVehicle.color);
-      setTypeId(initialVehicle.type_id);
-      setDriverId(initialVehicle.driver_id || 'none');
-    } else {
+      setVehicleId(initialVehicle.vehicle_id ?? initialVehicle.registration_no ?? '');
+      setRegNo(initialVehicle.registration_no ?? '');
+      setMfgDate(
+        typeof initialVehicle.manufacture_date === 'string'
+          ? initialVehicle.manufacture_date.slice(0, 10)
+          : ''
+      );
+      setColor(initialVehicle.color ?? '');
+      setTypeId(initialVehicle.type_id ?? '');
+      setDriverId(initialVehicle.driver_id ?? 'none');
+    }
+    else {
       const numericIds = existingIds
+        .filter((id): id is string => typeof id === 'string' && id.length > 0)
         .map((id) => parseInt(id.replace(/\D/g, ''), 10))
-        .filter((n) => !isNaN(n));
+        .filter((n) => Number.isFinite(n));
+
       const nextNum = numericIds.length > 0 ? Math.max(...numericIds) + 1 : 1;
       setVehicleId(`V${String(nextNum).padStart(3, '0')}`);
       setRegNo('');

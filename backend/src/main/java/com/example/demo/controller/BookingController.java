@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
 @RestController
 @RequestMapping("/api/bookings")
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173"})
@@ -29,19 +32,39 @@ public class BookingController {
 
     @PostMapping
     public String addBooking(@RequestBody Map<String, Object> body) {
-        String sql = """
-                INSERT INTO BOOKING (PASSENGER_ID, TRIP_ID, PASSENGER_NAME, TRIP_DATE, SEAT_NO, BOOKING_DATE)
-                VALUES (?, ?, ?, TO_DATE(?, 'YYYY-MM-DD'), ?, TO_DATE(?, 'YYYY-MM-DD'))
-                """;
-        jdbcTemplate.update(
-                sql,
-                body.get("passenger_id"),
-                body.get("trip_id"),
-                body.get("passenger_name"),
-                body.get("trip_date"),
-                body.get("seat_no"),
-                body.get("booking_date")
+        String passengerId = String.valueOf(body.get("passenger_id"));
+        String tripId = String.valueOf(body.get("trip_id"));
+
+        Integer count = jdbcTemplate.queryForObject(
+            "SELECT COUNT(*) FROM BOOKING WHERE PASSENGER_ID = ? AND TRIP_ID = ?",
+            Integer.class,
+            passengerId,
+            tripId
         );
+
+        if (count != null && count > 0) {
+            throw new ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "This passenger is already booked on this trip."
+            );
+        }
+
+        String sql = """
+            INSERT INTO BOOKING
+                (PASSENGER_ID, TRIP_ID, PASSENGER_NAME, TRIP_DATE, SEAT_NO, BOOKING_DATE)
+            VALUES (?, ?, ?, TO_DATE(?, 'YYYY-MM-DD'), ?, TO_DATE(?, 'YYYY-MM-DD'))
+            """;
+
+        jdbcTemplate.update(
+            sql,
+            passengerId,
+            tripId,
+            body.get("passenger_name"),
+            body.get("trip_date"),
+            body.get("seat_number"),
+            body.get("booking_date")
+        );
+
         return "Booking added successfully";
     }
 

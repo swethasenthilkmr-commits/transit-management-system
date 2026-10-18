@@ -38,8 +38,10 @@ export const DriverModal: React.FC<DriverModalProps> = ({
           ? [...initialDriver.phone_numbers]
           : ['']
       );
-    } else {
+    } 
+    else {
       const numericIds = existingIds
+        .filter((id): id is string => typeof id === 'string')
         .map((id) => parseInt(id.replace(/\D/g, ''), 10))
         .filter((n) => !isNaN(n));
       const nextNum = numericIds.length > 0 ? Math.max(...numericIds) + 1 : 1;

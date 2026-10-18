@@ -96,31 +96,39 @@ export const VehicleList: React.FC = () => {
           </div>
         );
       },
-    },
+    }, 
     {
       key: 'color',
       header: 'Color',
       width: '120px',
-      render: (row) => (
-        <span className="inline-flex items-center gap-1.5 text-zinc-700">
-          <span
-            className="w-2.5 h-2.5 rounded-full border border-zinc-300"
-            style={{
-              backgroundColor:
-                row.color.toLowerCase().includes('blue')
-                  ? '#3b82f6'
-                  : row.color.toLowerCase().includes('green')
-                  ? '#10b981'
-                  : row.color.toLowerCase().includes('silver')
-                  ? '#94a3b8'
-                  : row.color.toLowerCase().includes('white')
-                  ? '#f8fafc'
-                  : '#71717a',
-            }}
-          />
-          {row.color}
-        </span>
-      ),
+      render: (row) => {
+        const color = String(row.color ?? 'Unknown');
+        const normalizedColor = color.toLowerCase();
+
+        const backgroundColor = normalizedColor.includes('blue')
+          ? '#3b82f6'
+          : normalizedColor.includes('green')
+          ? '#10b981'
+          : normalizedColor.includes('silver')
+          ? '#94a3b8'
+          : normalizedColor.includes('white')
+          ? '#f8fafc'
+          : normalizedColor.includes('red')
+          ? '#ef4444'
+          : normalizedColor.includes('black')
+          ? '#18181b'
+          : '#71717a';
+
+        return (
+          <span className="inline-flex items-center gap-1.5 text-zinc-700">
+            <span
+              className="w-2.5 h-2.5 rounded-full border border-zinc-300"
+              style={{ backgroundColor }}
+            />
+            {color}
+          </span>
+        );
+      },
     },
     {
       key: 'driver_id',
